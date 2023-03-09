@@ -152,18 +152,16 @@ const flowClient = addKeyword(['pertenezco','⬅️ Volver al Inicio'])
     )
     .addAnswer(
         'Para iniciar con tu proceso de *pre-registro*, seleciona con quien quieres interactuar:',
-        {
-            capture: true, buttons: [{ body: 'Roberto (Persona)' }, { body: 'Sara (IA Experimental)' }, { body: 'Sigue conmigo (chatbot)' }],
-        },
-        async (ctx, { flowDynamic, endFlow }) => {
+        {capture: true, buttons: [{ body: 'Roberto (Persona)' }, { body: 'Sara (IA Experimental)' }, { body: 'Sigue conmigo (chatbot)' }]},
+        async (ctx, { flowDynamic, endFlow, fallBack }) => {
             if (ctx.body == 'Roberto (Persona)')
-            return endFlow({body:'Encantado de hablar contigo, *${nombre}*.',    // Aquí terminamos el flow si la condicion se comple
-                buttons:[{body:'⬅️ Volver al Inicio' }]                      // Y además, añadimos un botón por si necesitas derivarlo a otro flow        
-            })
+                return endFlow(`Encantado de hablar contigo *${nombre}*, Adios.`)
             else if (ctx.body == 'Sara (IA Experimental)')
-            return endFlow({body: 'Encantado de hablar contigo, *${nombre}*.',    // Aquí terminamos el flow si la condicion se comple
-                buttons:[{body:'⬅️ Volver al Inicio' }]                      // Y además, añadimos un botón por si necesitas derivarlo a otro flow        
-            })
+                return flowDynamic('2')
+            else if (ctx.body == 'Sigue conmigo (chatbot)')
+                return flowDynamic('1')
+            else
+                return fallBack()
         }
     )
 
