@@ -1,0 +1,19 @@
+# node_modules
+node_modules/
+
+# Dependencias generadas por npm
+package-lock.json
+npm-debug.log
+
+# Dependencias generadas por yarn
+yarn.lock
+yarn-error.log
+.pnp
+
+# Excluye archivos de caché
+.npm
+.cache
+
+# Archivos de registro
+logs
+*.log
