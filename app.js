@@ -5,6 +5,21 @@ const BaileysProvider = require('@bot-whatsapp/provider/baileys')
 const MockAdapter = require('@bot-whatsapp/database/mock')
 
 /*
+------------------------------------------
+CONEXION DE FIRESTORE DATABASE CON NODE JS
+------------------------------------------
+*/
+
+const admin = require("firebase-admin");
+
+const serviceAccount = require("jeeimkgServiceKey.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://jeeimkg-5705b.firebaseio.com"
+});
+
+/*
 --------------------------------------------------------------------
 FLOWS SECUNDARIOS (FLOWS YA EXISTENTES ANTES DE LOS PRIMARIOS)
 --------------------------------------------------------------------
@@ -135,6 +150,14 @@ FLOWS PRIMARIOS-SECUNDARIOS DEL CHATBOT
 --------------------------------------------------------------------
 */
 
+const flowPreRegistro = addKeyword(['Sigue conmigo (chatbot)']).addAnswer(
+    '🙋🏻‍♂️ Bienvenido al sistema *de pre-registro*',
+    'Responde las preguntas *honestamente*'
+)
+.addAnswer(
+    ''
+)
+
 let nombre;
 const flowClient = addKeyword(['pertenezco','⬅️ Volver al Inicio'])
     .addAnswer(
@@ -151,18 +174,23 @@ const flowClient = addKeyword(['pertenezco','⬅️ Volver al Inicio'])
         }
     )
     .addAnswer(
-        'Para iniciar con tu proceso de *pre-registro*, seleciona con quien quieres interactuar:',
-        {capture: true, buttons: [{ body: 'Roberto (Persona)' }, { body: 'Sara (IA Experimental)' }, { body: 'Sigue conmigo (chatbot)' }]},
-        async (ctx, { flowDynamic, endFlow, fallBack }) => {
-            if (ctx.body == 'Roberto (Persona)')
-                return endFlow(`Encantado de hablar contigo *${nombre}*, Adios.`)
-            else if (ctx.body == 'Sara (IA Experimental)')
-                return flowDynamic('2')
-            else if (ctx.body == 'Sigue conmigo (chatbot)')
-                return flowDynamic('1')
-            else
-                return fallBack()
-        }
+        [
+            'Para iniciar con tu proceso de *pre-registro*, seleciona con quien quieres interactuar:',
+            {capture: true, buttons: [{ body: 'Roberto (Persona)' }, { body: 'Sara (IA Experimental)' }, { body: 'Sigue conmigo (chatbot)' }]},
+            async (ctx, { flowDynamic, endFlow, fallBack }) => {
+                if (ctx.body == 'Roberto (Persona)')
+                    return endFlow(`Encantado de hablar contigo *${nombre}*, Adios.`)
+                else if (ctx.body == 'Sara (IA Experimental)')
+                    return endFlow('2')
+                else if (ctx.body == 'Sigue conmigo (chatbot)')
+                    return flowDynamic('Gracias por elegirme...')
+                else
+                    return fallBack()
+            }
+        ],
+        null,
+        null,
+        []
     )
 
 const flowPortafolio = addKeyword(['portafolio', 'Portfolio', 'trabajos']).addAnswer(

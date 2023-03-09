@@ -17,3 +17,6 @@ yarn-error.log
 # Archivos de registro
 logs
 *.log
+
+# clave privada firebase
+.jeeimkgServiceKey.json
