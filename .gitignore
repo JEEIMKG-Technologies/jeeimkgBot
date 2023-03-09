@@ -19,4 +19,4 @@ logs
 *.log
 
 # clave privada firebase
-.jeeimkgServiceKey.json
+jeeimkgServiceKey.json
