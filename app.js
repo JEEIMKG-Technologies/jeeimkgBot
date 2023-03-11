@@ -12,7 +12,7 @@ CONEXION DE FIRESTORE DATABASE CON NODE JS
 
 const admin = require("firebase-admin");
 
-const serviceAccount = require("jeeimkgServiceKey.json");
+const serviceAccount = require("./jeeimkgServiceKey.json");
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -146,19 +146,20 @@ const flowDesign = addKeyword(['diseño','design']).addAnswer(
 
 /*
 --------------------------------------------------------------------
-FLOWS PRIMARIOS-SECUNDARIOS DEL CHATBOT
+FLOW DE CONVERSION O PREREGISTRO COMO CLIENTE EN JEEIMKG AGENCY
 --------------------------------------------------------------------
 */
 
-const flowPreRegistro = addKeyword(['Sigue conmigo (chatbot)']).addAnswer(
-    '🙋🏻‍♂️ Bienvenido al sistema *de pre-registro*',
-    'Responde las preguntas *honestamente*'
-)
-.addAnswer(
-    ''
-)
-
 let nombre;
+let tipoNegocio;
+let presupuesto;
+let objetivo;
+let nicho;
+let ROI;
+let presupuestoOnline;
+let area;
+let tiempo;
+let problemas;
 const flowClient = addKeyword(['pertenezco','⬅️ Volver al Inicio'])
     .addAnswer(
         ['Antes de empezar...','\n*¿Cuál es tu nombre?*'],
@@ -174,24 +175,264 @@ const flowClient = addKeyword(['pertenezco','⬅️ Volver al Inicio'])
         }
     )
     .addAnswer(
-        [
-            'Para iniciar con tu proceso de *pre-registro*, seleciona con quien quieres interactuar:',
-            {capture: true, buttons: [{ body: 'Roberto (Persona)' }, { body: 'Sara (IA Experimental)' }, { body: 'Sigue conmigo (chatbot)' }]},
-            async (ctx, { flowDynamic, endFlow, fallBack }) => {
-                if (ctx.body == 'Roberto (Persona)')
-                    return endFlow(`Encantado de hablar contigo *${nombre}*, Adios.`)
-                else if (ctx.body == 'Sara (IA Experimental)')
-                    return endFlow('2')
-                else if (ctx.body == 'Sigue conmigo (chatbot)')
-                    return flowDynamic('Gracias por elegirme...')
-                else
-                    return fallBack()
-            }
-        ],
-        null,
-        null,
-        []
+        'Para iniciar con tu proceso de *pre-registro*, seleciona con quien quieres interactuar.',
+        {
+            capture: true, 
+            buttons: [
+                { body: 'Roberto (Persona)' }, { body: 'Sara (IA Experimental)' }, { body: 'Sigue conmigo (chatbot)' }
+            ]
+        },
+        async (ctx, { flowDynamic, endFlow, fallBack }) => {
+            if (ctx.body == 'Roberto (Persona)')
+                return endFlow(`Encantado de hablar contigo *${nombre}*, Adios.`)
+            else if (ctx.body == 'Sara (IA Experimental)')
+                return endFlow(`Encantado de hablar contigo *${nombre}*, Adios.`)
+            else if (ctx.body == 'Sigue conmigo (chatbot)')
+                return  flowDynamic('Gracias por elegirme...')
+            else
+                return fallBack()
+        }
     )
+    .addAnswer(
+        [
+            '🙋🏻‍♂️ Bienvenido al sistema *de pre-registro*, Lee atentamente las *instrucciones*:',
+            '\n❔  Responde con honestidad',
+            '🧐  Elije atentanmente que servicio necesitas',
+            '📅  Al terminar, deberas agendar una cita con nosotros',
+            '💵  Nuestros precios no son cotizables (Precio personalizado según el cliente).',
+            '💸  Si quieres cotizar precios deberá ser con uno de nuestros agentes (Roberto).',
+            '🙆🏻‍♂️  Se franco, así podremos brindarte un mejor servicio.',
+        ]
+    )
+    .addAnswer(
+        ['¿Estas de acuerdo con esto?','Si no es así, puedes cancelar la solicitud.'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            return flowDynamic(`Perfecto *${nombre}*, Sigamos con el proceso...`)
+        }
+    )
+    .addAnswer(
+        ['¿Qué tipo de negocio tienes?'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            tipoNegocio = ctx.body
+            return flowDynamic(`${nombre} tu resumen: *${tipoNegocio}*`)
+        }
+    )
+    .addAnswer(
+        ['¿Cuál es tu presupuesto?'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            presupuesto = ctx.body
+            return flowDynamic(`Perfecto *${presupuesto}*, Sigamos con el proceso...`)
+        }
+    )
+    .addAnswer(
+        ['¿Cuál es su objetivo principal al contratar servicios de marketing?'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            objetivo = ctx.body
+            return flowDynamic(`Perfecto *${objetivo}*, Sigamos con el proceso...`)
+        }
+    )
+    .addAnswer(
+        ['¿Ha trabajado con una agencia de marketing anteriormente?'],
+        { capture: true, buttons: [{ body: 'Sí' }, { body: 'No' }] },
+        async (ctx, { flowDynamic, fallBack }) => {
+            if (ctx.body == 'Sí')
+                return flowDynamic('¿Cuál fue su experiencia?')
+            else if (ctx.body == 'No')
+                return flowDynamic('Perfecto, no te preocupes. Nosotros te guiamos')
+            else
+                return fallBack()
+            
+        }
+    )
+    .addAnswer(
+        ['¿Cuál es su nicho de mercado?'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            nicho = ctx.body
+            return flowDynamic(`Perfecto *${nicho}*, Sigamos con el proceso...`)
+        }
+    )
+    .addAnswer(
+        ['¿Busca servicios de marketing en línea o fuera de línea?'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            marketing = ctx.body
+            return flowDynamic(`Perfecto *${marketing}*, Sigamos con el proceso...`)
+        }
+    )
+    .addAnswer(
+        ['¿Tiene algún plan de marketing en marcha actualmente?'],
+        { capture: true, buttons: [{ body: 'Sí' }, { body: 'No' }] },
+        async (ctx, { flowDynamic, fallBack }) => {
+            if (ctx.body == 'Sí')
+                return flowDynamic('¿Cuál es su plan de marketing actual?')
+            else if (ctx.body == 'No')
+                return flowDynamic('Perfecto, no te preocupes. Nosotros te guiamos')
+            else
+                return fallBack()
+            
+        }
+    )
+    .addAnswer(
+        ['¿Cuál es su expectativa de ROI?'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            ROI = ctx.body
+            return flowDynamic(`Perfecto *${ROI}*, Sigamos con el proceso...`)
+        }
+    )
+    .addAnswer(
+        ['¿Tiene presencia en las redes sociales?'],
+        { capture: true, buttons: [{ body: 'Sí' }, { body: 'No' }] },
+        async (ctx, { flowDynamic, fallBack }) => {
+            if (ctx.body == 'Sí')
+                return flowDynamic('¿Cuál es su plan de marketing actual?')
+            else if (ctx.body == 'No')
+                return flowDynamic('Perfecto, no te preocupes. Nosotros te guiamos')
+            else
+                return fallBack()
+            
+        }
+    )
+    .addAnswer(
+        ['¿Cuál es su presupuesto de publicidad en línea?'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            presupuestoOnline = ctx.body
+            return flowDynamic(`Perfecto *${presupuestoOnline}*, Sigamos con el proceso...`)
+        }
+    )
+    .addAnswer(
+        ['¿Cuál es su área geográfica de interés para la promoción?'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            area = ctx.body
+            return flowDynamic(`Perfecto *${area}*, Sigamos con el proceso...`)
+        }
+    )
+    .addAnswer(
+        ['¿Está dispuesto a invertir tiempo y recursos en su presencia digital?'],
+        { capture: true, buttons: [{ body: 'Sí' }, { body: 'No' }] },
+        async (ctx, { flowDynamic, fallBack }) => {
+            if (ctx.body == 'Sí')
+                return flowDynamic('¿Cuál es su plan de marketing actual?')
+            else if (ctx.body == 'No')
+                return flowDynamic('Perfecto, no te preocupes. Nosotros te guiamos')
+            else
+                return fallBack()
+            
+        }
+    )
+    .addAnswer(
+        ['¿Cuánto tiempo ha estado en el negocio?'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            tiempo = ctx.body
+            return flowDynamic(`Perfecto *${tiempo}*, Sigamos con el proceso...`)
+        }
+    )
+    .addAnswer(
+        ['¿Cuál es el tamaño de su negocio?'],
+        { capture: true, buttons: [{ body: 'Pequeño' }, { body: 'Mediano'},{ body:'Grande'}] },
+        async (ctx, { flowDynamic, fallBack }) => {
+            if (ctx.body == 'Pequeño')
+                return flowDynamic('¿Cuál es su plan de marketing actual?')
+            else if (ctx.body == 'Mediano')
+                return flowDynamic('Perfecto, no te preocupes. Nosotros te guiamos')
+            else if (ctx.body == 'Grande')
+                return flowDynamic('Perfecto, no te preocupes. Nosotros te guiamos')
+            else
+                return fallBack()
+        }
+    )
+    .addAnswer(
+        ['¿Qué problemas espera resolver con la contratación de una agencia de marketing?'],
+        { capture: true, buttons: [{ body: '❌ Cancelar solicitud' }] },
+        async (ctx, { flowDynamic, endFlow }) => {
+            if (ctx.body == '❌ Cancelar solicitud')
+            return endFlow({body: '❌ Su solicitud ha sido cancelada ❌',
+                buttons:[{body:'⬅️ Volver al Inicio' }]                         
+            })
+            problemas = ctx.body
+            return flowDynamic(`Perfecto *${problemas}*, Sigamos con el proceso...`)
+        }
+    )
+    .addAnswer(
+        ['¿Está dispuesto a hacer cambios en su negocio para adaptarse a una estrategia de marketing exitosa?'],
+        { capture: true, buttons: [{ body: 'Sí' }, { body: 'No' }] },
+        async (ctx, { flowDynamic, fallBack }) => {
+            if (ctx.body == 'Sí')
+                return flowDynamic('¿Cuál es su plan de marketing actual?')
+            else if (ctx.body == 'No')
+                return flowDynamic('Perfecto, no te preocupes. Nosotros te guiamos')
+            else
+                return fallBack()
+            
+        }
+    )
+    .addAnswer(
+        ['¿Está buscando un plan de marketing a corto o largo plazo?'],
+        { capture: true, buttons: [{ body: 'Corto' }, { body: 'Largo' }] },
+        async (ctx, { flowDynamic, fallBack }) => {
+            if (ctx.body == 'Corto')
+                return flowDynamic('¿Cuál es su plan de marketing actual?')
+            else if (ctx.body == 'Largo')
+                return flowDynamic('Perfecto, no te preocupes. Nosotros te guiamos')
+            else
+                return fallBack()
+            
+        }
+    )
+
+/*
+--------------------------------------------------------------------
+FLOWS PRIMARIOS-SECUNDARIOS DEL CHATBOT
+--------------------------------------------------------------------
+*/
 
 const flowPortafolio = addKeyword(['portafolio', 'Portfolio', 'trabajos']).addAnswer(
     [
